@@ -84,9 +84,20 @@ class ViewTests(TestCase):
         self.assertEquals([], list(v.get_queryset()))
         cl = make_contactlog()
         self.assertEquals([cl], list(v.get_queryset()))
+    
+    def test_contact_log(self):
+        cl = make_contactlog()
+        v = views.ContactLogView(kwargs={'pk': cl.pk})
+        self.assertEquals(cl, v.get_object())
 
 class ViewSecurityTests(TestCase):
     def test_home(self):
         c = Client()
         response = c.get(reverse('home'))
+        self.assertEquals(200, response.status_code)
+
+    def test_contact_log(self):
+        cl = make_contactlog()
+        c = Client()
+        response = c.get(reverse('contact_log',kwargs={'pk': cl.pk}))
         self.assertEquals(200, response.status_code)
