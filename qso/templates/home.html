@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+
+{% block page_title %}Home{% endblock %}
+
+{% block section_title %}Home{% endblock %}
+
+{% block page_content %}
+{% if not logs %}<p>You have not set up any contact logs.</p>{% else %}
+<ul>
+{% for l in logs %}
+<li>{{ l.name }}</li>
+{% endfor %}
+</ul>
+{% endif %}
+{% endblock %}
