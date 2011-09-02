@@ -3,8 +3,9 @@ MooseLogger is a Django-based ham radio logging platform.
 Recommend that you set up in a virtualenv:
 # virtualenv --no-site-packages mooselogger
 # cd mooselogger
+# source bin/activate
 # git clone git@github.com:moosepod/MooseLogger.git
-# cd mooselogger
+# cd MooseLogger
 # pip install -r requirements.txt
 # vi local_settings.py
 
