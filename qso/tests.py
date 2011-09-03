@@ -23,6 +23,23 @@ def make_contactlog(owner=None, ruleset=None):
     return ContactLog.objects.create(name='Flarp',
                                      owner=owner or make_operator(),
                                      ruleset=ruleset or make_ruleset())
+
+class BandTest(TestCase):
+    def test_unicode(self);
+        self.fail()
+
+    def test_save(self):
+        self.fail()
+
+        self.fail('test bottom < top')
+
+class ModeTest(TestCase):
+    def test_unicode(self);
+        self.fail()
+
+    def test_save(self):
+        self.fail()
+
 class OperatorTests(TestCase):
     def test_unicode(self):
         o = Operator(callsign='KC2ZUF')
@@ -68,6 +85,19 @@ class ContactLogTests(TestCase):
         # Should be able to create another identical log w/o exception
         make_contactlog(owner=cl.owner, ruleset=cl.ruleset)
 
+class LogEntryTests(TestCase):
+    def test_unicode(self):
+        self.fail()
+
+    def test_save(self):
+        self.fail('Should be able to create without freq, rst')
+
+    def test_rst_sent_validation(self):
+        self.fail()
+
+    def test_rst_received_validation(self):
+        self.fail()
+
 class ViewTests(TestCase):
     def test_home_template_empty(self):
         s = render_to_string('home.html', {})
@@ -90,6 +120,14 @@ class ViewTests(TestCase):
         v = views.ContactLogView(kwargs={'pk': cl.pk})
         self.assertEquals(cl, v.get_object())
 
+        self.fail('Test for list of log entries')
+
+    def test_contact_log_template_empty(self):
+        self.fail()
+
+    def test_contact_log_template_list(self):
+        self.fail()
+
 class ViewSecurityTests(TestCase):
     def test_home(self):
         c = Client()
@@ -101,3 +139,7 @@ class ViewSecurityTests(TestCase):
         c = Client()
         response = c.get(reverse('contact_log',kwargs={'pk': cl.pk}))
         self.assertEquals(200, response.status_code)
+
+class FormTests(TestCase):
+    def test_contact_form(self):
+        self.fail()

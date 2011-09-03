@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+
+{% block page_title %}{{ contact_log.name }}{% endblock %}
+
+{% block section_title %}{{ contact_log.name }}{% endblock %}
+
+{% block page_content %}
+{% if not log_entries %}<p>You have not logged any entries yet.</p>{% else %}
+<table>
+ <tr>
+  <th>Date</th>
+  <th>Time</th>
+  <th>DE</th>
+  <th>Mode</th>
+  <th>Frequency</th>
+  <th>Band</th>
+  <th>RST Sent</th>
+  <th>RST Recv</th>
+ </tr>
+{% for entry in log_entries %}
+ <tr>
+  <td>{{ entry.when|date:"m/d/Y" }}</td>
+  <td>{{ entry.when|time:"H:i" }}Z</td>
+  <td>{{ entry.de_callsign }}</td>
+  <td>{{ entry.mode }}</td>
+  <td>{{ entry.frequency }} MHz</td>
+  <td>{{ entry.band }}</td>
+  <td>{{ entry.rst_sent }}</td>
+  <td>{{ entry.rst_received }}</td>
+ </tr>
+{% endfor %}
+</table>
+{% endif %}
+{% endblock %}

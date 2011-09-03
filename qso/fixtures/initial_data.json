@@ -1,0 +1,202 @@
+[
+    {
+        "pk": 1, 
+        "model": "qso.band", 
+        "fields": {
+            "band_top": "2", 
+            "band_bottom": "1.8", 
+            "name": "160m"
+        }
+    }, 
+    {
+        "pk": 2, 
+        "model": "qso.band", 
+        "fields": {
+            "band_top": "4", 
+            "band_bottom": "3.5", 
+            "name": "80m"
+        }
+    }, 
+    {
+        "pk": 3, 
+        "model": "qso.band", 
+        "fields": {
+            "band_top": "5.408", 
+            "band_bottom": "5.33", 
+            "name": "60m"
+        }
+    }, 
+    {
+        "pk": 4, 
+        "model": "qso.band", 
+        "fields": {
+            "band_top": "7.3", 
+            "band_bottom": "7", 
+            "name": "40m"
+        }
+    }, 
+    {
+        "pk": 5, 
+        "model": "qso.band", 
+        "fields": {
+            "band_top": "14.35", 
+            "band_bottom": "14", 
+            "name": "30m"
+        }
+    },
+    {
+        "pk": 6, 
+        "model": "qso.band", 
+        "fields": {
+            "band_top": "18.168", 
+            "band_bottom": "18.068", 
+            "name": "17m"
+        }
+    }, 
+    {
+        "pk": 7, 
+        "model": "qso.band", 
+        "fields": {
+            "band_top": "21.45", 
+            "band_bottom": "21", 
+            "name": "15m"
+        }
+    }, 
+    {
+        "pk": 8, 
+        "model": "qso.band", 
+        "fields": {
+            "band_top": "24.99", 
+            "band_bottom": "24.89", 
+            "name": "12m"
+        }
+    }, 
+    {
+        "pk": 9, 
+        "model": "qso.band", 
+        "fields": {
+            "band_top": "29.7", 
+            "band_bottom": "28", 
+            "name": "10m"
+        }
+    }, 
+    {
+        "pk": 10, 
+        "model": "qso.band", 
+        "fields": {
+            "band_top": "54", 
+            "band_bottom": "50", 
+            "name": "6m"
+        }
+    }, 
+    {
+        "pk": 11, 
+        "model": "qso.band", 
+        "fields": {
+            "band_top": "148", 
+            "band_bottom": "144", 
+            "name": "2m"
+        }
+    }, 
+    {
+        "pk": 12, 
+        "model": "qso.band", 
+        "fields": {
+            "band_top": "225", 
+            "band_bottom": "219", 
+            "name": "1.25m"
+        }
+    }, 
+    {
+        "pk": 13, 
+        "model": "qso.band", 
+        "fields": {
+            "band_top": "450", 
+            "band_bottom": "420", 
+            "name": "70cm"
+        }
+    }, 
+    {
+        "pk": 14, 
+        "model": "qso.band", 
+        "fields": {
+            "band_top": "928", 
+            "band_bottom": "902", 
+            "name": "33cm"
+        }
+    }, 
+    {
+        "pk": 15, 
+        "model": "qso.band", 
+        "fields": {
+            "band_top": "1300", 
+            "band_bottom": "1240", 
+            "name": "23cm"
+        }
+    },
+    {
+        "pk": 16, 
+        "model": "qso.band", 
+        "fields": {
+            "band_top": "14.000", 
+            "band_bottom": "14.350", 
+            "name": "20m"
+        }
+    }, 
+    {
+        "pk": 1, 
+        "model": "qso.mode", 
+        "fields": {
+            "name": "SSB"
+        }
+    }, 
+    {
+        "pk": 2, 
+        "model": "qso.mode", 
+        "fields": {
+            "name": "CW"
+        }
+    }, 
+    {
+        "pk": 3, 
+        "model": "qso.mode", 
+        "fields": {
+            "name": "FM"
+        }
+    }, 
+    {
+        "pk": 4, 
+        "model": "qso.mode", 
+        "fields": {
+            "name": "AM"
+        }
+    }, 
+    {
+        "pk": 5, 
+        "model": "qso.mode", 
+        "fields": {
+            "name": "RTTY"
+        }
+    }, 
+    {
+        "pk": 6, 
+        "model": "qso.mode", 
+        "fields": {
+            "name": "PSK31"
+        }
+    }, 
+    {
+        "pk": 7, 
+        "model": "qso.mode", 
+        "fields": {
+            "name": "Other (Digital)"
+        }
+    }, 
+    {
+        "pk": 8, 
+        "model": "qso.mode", 
+        "fields": {
+            "name": "Other"
+        }
+    }
+]
