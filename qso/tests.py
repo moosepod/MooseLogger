@@ -18,6 +18,9 @@ from qso.models import Ruleset, ContactLog, Operator, Band, Mode, Contact
 from qso.forms import ContactForm
 from qso import views
 
+class MockForm(object):
+    def as_p(self):
+        return 'this is the form'
 
 def make_operator():
     return Operator.objects.create(callsign='KC2ZUF')
@@ -30,9 +33,9 @@ def make_contactlog(owner=None, ruleset=None):
                                      owner=owner or make_operator(),
                                      ruleset=ruleset or make_ruleset())
 
-def make_logentry(contact_log=None):
-    return LogEntry.objects.create(when=datetime.datetime(2011,1,2,1,2,3), 
-                                     de_callsign='W2PE',
+def make_contact(contact_log=None):
+    return Contact.objects.create(when=datetime.datetime(2011,1,2,1,2,3), 
+                                     callsign='W2PE',
                                      mode=Mode.objects.get(name='SSB'),
                                      band=Band.objects.get(name='20m'),
                                      contact_log=contact_log or make_contactlog(),
@@ -58,6 +61,25 @@ class BandTest(TestCase):
             self.fail('Should have thrown validation error')
         except ValidationError:
             pass
+
+    def test_band_for_frequency(self):
+        self.assertEquals('160m',Band.objects.get_band_for_frequency(1.9).name)
+        self.assertEquals('80m',Band.objects.get_band_for_frequency(3.7).name)
+        self.assertEquals('60m',Band.objects.get_band_for_frequency(5.366).name)
+        self.assertEquals('40m',Band.objects.get_band_for_frequency(7.25).name)
+        self.assertEquals('30m',Band.objects.get_band_for_frequency(10.110).name)
+        self.assertEquals('20m',Band.objects.get_band_for_frequency(14.125).name)
+        self.assertEquals('17m',Band.objects.get_band_for_frequency(18.111).name)
+        self.assertEquals('15m',Band.objects.get_band_for_frequency(21.205).name)
+        self.assertEquals('12m',Band.objects.get_band_for_frequency(24.933).name)
+        self.assertEquals('10m',Band.objects.get_band_for_frequency(28.488).name)
+        self.assertEquals('6m',Band.objects.get_band_for_frequency(50.223).name)
+        self.assertEquals('2m',Band.objects.get_band_for_frequency(146.0).name)
+        self.assertEquals('1.25m',Band.objects.get_band_for_frequency(222.5).name)
+        self.assertEquals('70cm',Band.objects.get_band_for_frequency(444.0).name)
+        self.assertEquals('33cm',Band.objects.get_band_for_frequency(918.1).name)
+        self.assertEquals('23cm',Band.objects.get_band_for_frequency(1240.0).name)
+        self.assertFalse(Band.objects.get_band_for_frequency(60))
 
 class ModeTest(TestCase):
     def test_unicode(self):
@@ -112,9 +134,9 @@ class LogFormTests(TestCase):
         self.assertFalse(f.errors.get('when'))
 
     def test_validate_callsign(self):
-        f = ContactForm(data={'de': None})
+        f = ContactForm(data={'callsign': None})
         self.assertFalse(f.is_valid())
-        self.assertEquals([u"Please provide the contact's callsign."], f.errors.get('de'))
+        self.assertEquals([u"Please provide the contact's callsign."], f.errors.get('callsign'))
 
     def test_validate_frequency(self):
         f = ContactForm(data={'frequency': None})
@@ -140,28 +162,119 @@ class LogFormTests(TestCase):
         self.assertFalse(f.errors.get('__all__'))
         
     def test_validate_rst_sent(self):
-        self.fail('Not required')
-        self.fail('Format [1-5][1-9N][1-9N]?')
+        f = ContactForm(data={'rst_sent': None})
+        self.assertFalse(f.is_valid())
+        self.assertFalse(f.errors.get('rst_sent'))
+
+        for bad_rst in ('abc','5','5999','69','00','3a'):
+            f = ContactForm(data={'rst_sent': bad_rst})
+            self.assertFalse(f.is_valid())
+            self.assertEquals([u'RST Sent should be in the format 59 or 599.'],f.errors.get('rst_sent'))
+        
+        f = ContactForm(data={'rst_sent': '599'})
+        self.assertFalse(f.is_valid())
+        self.assertFalse(f.errors.get('rst_sent'))
 
     def test_validate_rst_received(self):
-        self.fail('Not required')
-        self.fail('Format [1-5][1-9N][1-9N]?')
+        f = ContactForm(data={'rst_received': None})
+        self.assertFalse(f.is_valid())
+        self.assertFalse(f.errors.get('rst_received'))
+
+        for bad_rst in ('abc','5','5999','69','00','3a'):
+            f = ContactForm(data={'rst_received': bad_rst})
+            self.assertFalse(f.is_valid())
+            self.assertEquals([u'RST Received should be in the format 59 or 599.'],f.errors.get('rst_received'))
+        
+        f = ContactForm(data={'rst_received': '599'})
+        self.assertFalse(f.is_valid())
+        self.assertFalse(f.errors.get('rst_received'))
 
     def test_contest_exchange_sent(self):
-        self.fail('Not required')
+        f = ContactForm(data={'contest_exchange_sent': None})
+        self.assertFalse(f.is_valid())
+        self.assertFalse(f.errors.get('contest_exchange_sent'))
 
     def test_contest_exchange_received(self):
-        self.fail('Required based on ruleset')
+        f = ContactForm(data={'contest_exchange_received': None})
+        self.assertFalse(f.is_valid())
+        self.assertFalse(f.errors.get('contest_exchange_received'))
 
     def test_save(self):
-        self.fail()
-        self.fail('test when set to now')
-    
+        cl = make_contactlog()
+        operator = make_operator()
+
+        f = ContactForm(data={'callsign': 'W2PE',
+                              'mode': Mode.objects.get(name='CW').id,
+                              'band': Band.objects.get(name='20m').id,
+                              'frequency': '14.125',
+                              'when': '2011-01-02 03:04',
+                              'rst_sent': '59',
+                              'rst_received': '599',
+                              'contest_exchange_sent': '1/NY',
+                              'contest_exchange_received': '33/WV'})
+
+        self.assertTrue(f.is_valid())
+        self.assertEquals(0, Contact.objects.filter(callsign='W2PE').count())
+
+        contact = f.save(contact_log=cl,operator=operator)
+
+        self.assertEquals(1, Contact.objects.filter(callsign='W2PE').count())
+        self.assertEquals('W2PE', contact.callsign)
+        self.assertEquals('2011-01-02 03:04:00', unicode(contact.when))
+        self.assertEquals(cl, contact.contact_log)
+        self.assertEquals(operator, contact.operator)
+        self.assertEquals('CW', contact.mode.name)
+        self.assertEquals('20m', contact.band.name)
+        self.assertEquals('59', contact.rst_sent)
+        self.assertEquals('599', contact.rst_received)
+        self.assertEquals('1/NY', contact.contest_exchange_sent)
+        self.assertEquals('33/WV', contact.contest_exchange_received)
+        self.assertEquals('14.125', contact.frequency)
+        
     def test_save_set_when(self):
-        self.fail()
+        cl = make_contactlog()
+        operator = make_operator()
+
+        f = ContactForm(data={'callsign': 'W2PE',
+                              'mode': Mode.objects.get(name='CW').id,
+                              'band': Band.objects.get(name='20m').id})
+
+        self.assertTrue(f.is_valid())
+        self.assertEquals(0, Contact.objects.filter(callsign='W2PE').count())
+
+        contact = f.save(contact_log=cl,operator=operator)
+
+        self.assertEquals(1, Contact.objects.filter(callsign='W2PE').count())
+        self.assertEquals('W2PE', contact.callsign)
+            
+        d = datetime.datetime.utcnow()
+        self.assertEquals(d.year, contact.when.year)
+        self.assertEquals(d.month, contact.when.month)
+        self.assertEquals(d.day, contact.when.day)
+        self.assertEquals(d.hour, contact.when.hour)
+        self.assertEquals(d.minute, contact.when.minute)
 
     def test_save_set_band(self):
-        self.fail()
+        cl = make_contactlog()
+        operator = make_operator()
+
+        f = ContactForm(data={'callsign': 'W2PE',
+                              'frequency': '14.243',
+                              'mode': Mode.objects.get(name='CW').id})
+        self.assertTrue(f.is_valid())
+        self.assertEquals(0, Contact.objects.filter(callsign='W2PE').count())
+
+        contact = f.save(contact_log=cl,operator=operator)
+
+        self.assertEquals(1, Contact.objects.filter(callsign='W2PE').count())
+        self.assertEquals('W2PE', contact.callsign)
+        self.assertEquals('20m', contact.band.name)
+
+        f = ContactForm(data={'callsign': 'W2PE',
+                              'frequency': '1.000',
+                              'mode': Mode.objects.get(name='CW').id})
+        self.assertFalse(f.is_valid())
+        self.assertEquals({'__all__': [u'Please select a band or enter a frequency.']}, f.errors)
 
 class ContactLogTests(TestCase):
     def test_unicode(self):
@@ -179,22 +292,22 @@ class ContactLogTests(TestCase):
 
 class LogEntryTests(TestCase):
     def test_unicode(self):
-        le = LogEntry(when=datetime.datetime(2011,1,2,1,2,3), de_callsign='W2PE')
+        le = Contact(when=datetime.datetime(2011,1,2,1,2,3), callsign='W2PE')
         self.assertEquals('2011-01-02 01:02:03, W2PE', unicode(le))
 
     def test_save(self):
         cl = make_contactlog()
         op = make_operator()
-        le = LogEntry.objects.create(when=datetime.datetime(2011,1,2,1,2,3), 
-                                     de_callsign='W2PE',
+        le = Contact.objects.create(when=datetime.datetime(2011,1,2,1,2,3), 
+                                     callsign='W2PE',
                                      mode=Mode.objects.get(name='SSB'),
                                      band=Band.objects.get(name='20m'),
                                      contact_log=cl,
                                      operator=op)
         
         # Should be able to create a dupe
-        LogEntry.objects.create(when=datetime.datetime(2011,1,2,1,2,3), 
-                                     de_callsign='W2PE',
+        Contact.objects.create(when=datetime.datetime(2011,1,2,1,2,3), 
+                                     callsign='W2PE',
                                      mode=Mode.objects.get(name='SSB'),
                                      band=Band.objects.get(name='20m'),
                                      contact_log=cl,
@@ -219,30 +332,29 @@ class ViewTests(TestCase):
     
     def test_contact_log(self):
         cl = make_contactlog()
-        v = views.ContactLogView(kwargs={'pk': cl.pk})
-        self.assertEquals(cl, v.get_object())
-        v.object = v.get_object()
-
-        e = make_logentry(contact_log=cl)
-        v = views.ContactLogView(kwargs={'pk': cl.pk})
-        v.object = v.get_object()
-        ctx = v.get_context_data()
+        v = views.ContactLogView()
+        ctx = v.get_context_data(pk=cl.pk)
         self.assertEquals(cl, ctx['contact_log'])
-        self.assertEquals([e], list(x for x in ctx['log_entries']))
+        
+        e = make_contact(contact_log=cl)
+        v = views.ContactLogView()
+        ctx = v.get_context_data(pk=cl.pk)
+        self.assertEquals(cl, ctx['contact_log'])
+        self.assertEquals([e], list(x for x in ctx['contacts']))
 
     def test_contact_log_template_empty(self):
-        e = make_logentry()
-        s = render_to_string('contact_log.html', {'log_entries': []})
+        e = make_contact()
+        s = render_to_string('contact_log.html', {'contacts': [],'form':MockForm()})
         self.assertTrue('You have not logged any entries yet.' in s)
-        self.assertFalse(e.de_callsign in s)
-        self.fail('Ensure form shows when empty')
+        self.assertTrue('this is the form' in s)
+        self.assertFalse(e.callsign in s)
 
     def test_contact_log_template_list(self):
-        e = make_logentry()
-        s = render_to_string('contact_log.html', {'log_entries': [e]})
+        e = make_contact()
+        s = render_to_string('contact_log.html', {'contacts': [e],'form':MockForm()})
         self.assertFalse('You have not logged any entries yet.' in s)
-        self.assertTrue(e.de_callsign in s)
-        self.fail('Ensure form shows when not empty')
+        self.assertTrue(e.callsign in s)
+        self.assertTrue('this is the form' in s)
 
 class ViewSecurityTests(TestCase):
     def test_home(self):

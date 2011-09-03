@@ -39,8 +39,8 @@
         "pk": 5, 
         "model": "qso.band", 
         "fields": {
-            "band_top": "14.35", 
-            "band_bottom": "14", 
+            "band_top": "10.150", 
+            "band_bottom": "10.1", 
             "name": "30m"
         }
     },
@@ -138,8 +138,8 @@
         "pk": 16, 
         "model": "qso.band", 
         "fields": {
-            "band_top": "14.000", 
-            "band_bottom": "14.350", 
+            "band_bottom": "14.000", 
+            "band_top": "14.350", 
             "name": "20m"
         }
     }, 

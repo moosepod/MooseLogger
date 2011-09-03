@@ -5,12 +5,13 @@
 {% block section_title %}{{ contact_log.name }}{% endblock %}
 
 {% block page_content %}
-{% if not contacts %}<p>You have not logged any entries yet.</p>{% else %}
 <form action="." method="POST">
 {% csrf_token %}
 {{ form.as_p }}
 <input type="submit"/>
 </form>
+
+{% if not contacts %}<p>You have not logged any entries yet.</p>{% else %}
 
 <table>
  <tr>
@@ -27,7 +28,7 @@
  <tr>
   <td>{{ contact.when|date:"m/d/Y" }}</td>
   <td>{{ contact.when|time:"H:i" }}Z</td>
-  <td>{{ contact.de_callsign }}</td>
+  <td>{{ contact.callsign }}</td>
   <td>{{ contact.mode }}</td>
   <td>{{ contact.frequency }} MHz</td>
   <td>{{ contact.band }}</td>

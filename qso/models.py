@@ -1,7 +1,18 @@
 from django.db import models
 from django.core.exceptions import ValidationError
 
+class BandManager(models.Manager):
+    def get_band_for_frequency(self, freq):
+        try:
+           band = Band.objects.filter(band_bottom__lte=freq, band_top__gte=freq)[0]
+        except IndexError:
+           band = None
+
+        return band
+
 class Band(models.Model):
+    objects = BandManager()
+
     name = models.CharField(max_length=30,unique=True)
     band_bottom = models.DecimalField(max_digits = 8, decimal_places=3)
     band_top = models.DecimalField(max_digits = 8, decimal_places=3)
@@ -51,7 +62,7 @@ class Contact(models.Model):
     operator = models.ForeignKey(Operator)
 
     when = models.DateTimeField()
-    de_callsign = models.CharField(max_length=10)
+    callsign = models.CharField(max_length=10)
     frequency = models.DecimalField(max_digits = 9, decimal_places=4,null=True,blank=True)
     mode = models.ForeignKey(Mode)
     band = models.ForeignKey(Band)
@@ -61,6 +72,6 @@ class Contact(models.Model):
     contest_exchange_received = models.CharField(max_length=100, null=True,blank=True)
 
     def __unicode__(self):
-        return u'%s, %s' % (self.when, self.de_callsign)
+        return u'%s, %s' % (self.when, self.callsign)
 
     
