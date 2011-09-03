@@ -6,4 +6,5 @@ urlpatterns = patterns('',
     # Examples:
     url(r'^$', HomeView.as_view(), name='home'),
     url(r'^log/(?P<pk>\d+)/$', ContactLogView.as_view(), name='contact_log'),
+
 )

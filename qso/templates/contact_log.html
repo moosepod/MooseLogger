@@ -5,11 +5,17 @@
 {% block section_title %}{{ contact_log.name }}{% endblock %}
 
 {% block page_content %}
-<form action="." method="POST">
+<div style="float: right">
+<div id="qrz_area" style="width: 600; height=400"></div>
+</div>
+
+<form action="." method="POST" name="contact_form">
 {% csrf_token %}
 {{ form.as_p }}
 <input type="submit"/>
 </form>
+
+<a href="#" onClick="$('#qrz_area').load('/callsign/lookup/' + document.forms.contact_form.callsign.value + '/'); return true;">Lookup</a>
 
 {% if not contacts %}<p>You have not logged any entries yet.</p>{% else %}
 

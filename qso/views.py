@@ -14,7 +14,6 @@ class HomeView(ListView):
     def get_queryset(self):
         return ContactLog.objects.all().order_by('name')
 
-
 class ContactLogView(View):
     template_name = "contact_log.html"
     context_object_name = "contact_log"
@@ -23,7 +22,7 @@ class ContactLogView(View):
     queryset = ContactLog.objects.all()
     
     def get_operator(self):
-        return Operator.objects.get(callsign='KC2ZUF')
+        return Operator.objects.get(callsign='KC2ZUF')  
 
     def get_context_data(self, **kwargs):
         context = {}

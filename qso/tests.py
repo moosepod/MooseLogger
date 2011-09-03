@@ -367,3 +367,6 @@ class ViewSecurityTests(TestCase):
         c = Client()
         response = c.get(reverse('contact_log',kwargs={'pk': cl.pk}))
         self.assertEquals(200, response.status_code)
+
+    def test_callsign_lookup(self):
+        self.fail()
