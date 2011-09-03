@@ -5,12 +5,16 @@ when you run "manage.py test".
 Replace this with more appropriate tests for your application.
 """
 
+import datetime
+
 from django.test import TestCase
 from django.test.client import Client
 from django.core.urlresolvers import reverse
 from django.template.loader import render_to_string
+from django.core.exceptions import ValidationError
+from django.db import DatabaseError, IntegrityError
 
-from qso.models import Ruleset, ContactLog, Operator
+from qso.models import Ruleset, ContactLog, Operator, Band, Mode, LogEntry
 from qso import views
 
 def make_operator():
@@ -24,21 +28,48 @@ def make_contactlog(owner=None, ruleset=None):
                                      owner=owner or make_operator(),
                                      ruleset=ruleset or make_ruleset())
 
+def make_logentry(contact_log=None):
+    return LogEntry.objects.create(when=datetime.datetime(2011,1,2,1,2,3), 
+                                     de_callsign='W2PE',
+                                     mode=Mode.objects.get(name='SSB'),
+                                     band=Band.objects.get(name='20m'),
+                                     contact_log=contact_log or make_contactlog(),
+                                     operator=make_operator())
+
 class BandTest(TestCase):
-    def test_unicode(self);
-        self.fail()
+    def test_unicode(self):
+        b = Band(name='21m',band_bottom=7.0, band_top=8.0)
+        self.assertEquals('21m', unicode(b))
 
     def test_save(self):
-        self.fail()
+        Band.objects.create(name='21m',band_bottom=7.0, band_top=8.0)
 
-        self.fail('test bottom < top')
+        try:
+            Band.objects.create(name='21m',band_bottom=7.0, band_top=8.0)
+            self.fail('Should have thrown unique violation exception')
+        except ValidationError:
+            pass
+
+    def test_save_range(self):
+        try:
+            Band.objects.create(name='20m',band_bottom=8.0, band_top=7.0)
+            self.fail('Should have thrown validation error')
+        except ValidationError:
+            pass
 
 class ModeTest(TestCase):
-    def test_unicode(self);
-        self.fail()
+    def test_unicode(self):
+        m = Mode(name='SSB')
+        self.assertEquals('SSB',unicode(m))
 
     def test_save(self):
-        self.fail()
+        Mode.objects.create(name='SSB Test')
+
+        try:
+            Mode.objects.create(name='SSB Test')
+            self.fail('Should have thrown unique violation exception')
+        except IntegrityError:
+            pass
 
 class OperatorTests(TestCase):
     def test_unicode(self):
@@ -48,11 +79,8 @@ class OperatorTests(TestCase):
     def test_save(self):
         Operator.objects.create(callsign='KC2ZUF')
 
-        try:
-            Operator.objects.create(callsign='KC2ZUF')
-            self.fail('Should have thrown exception')
-        except Exception:
-            pass
+        # You can have multiple operators with the same callsign, in theory, since they get reused
+        Operator.objects.create(callsign='KC2ZUF')
 
         Operator.objects.create(callsign='AA7AAA/AE')
 
@@ -62,12 +90,12 @@ class RulesetTests(TestCase):
         self.assertEquals('QSO Party', unicode(r))
 
     def test_save(self):
-        Operator.objects.create(callsign='QSO Party')
+        Ruleset.objects.create(name='Foo QSO Party')
 
         try:
-            Operator.objects.create(callsign='QSO Party')
+            Ruleset.objects.create(name='Foo QSO Party')
             self.fail('Should have thrown exception')
-        except Exception:
+        except DatabaseError:
             pass
 
 
@@ -87,16 +115,26 @@ class ContactLogTests(TestCase):
 
 class LogEntryTests(TestCase):
     def test_unicode(self):
-        self.fail()
+        le = LogEntry(when=datetime.datetime(2011,1,2,1,2,3), de_callsign='W2PE')
+        self.assertEquals('2011-01-02 01:02:03, W2PE', unicode(le))
 
     def test_save(self):
-        self.fail('Should be able to create without freq, rst')
-
-    def test_rst_sent_validation(self):
-        self.fail()
-
-    def test_rst_received_validation(self):
-        self.fail()
+        cl = make_contactlog()
+        op = make_operator()
+        le = LogEntry.objects.create(when=datetime.datetime(2011,1,2,1,2,3), 
+                                     de_callsign='W2PE',
+                                     mode=Mode.objects.get(name='SSB'),
+                                     band=Band.objects.get(name='20m'),
+                                     contact_log=cl,
+                                     operator=op)
+        
+        # Should be able to create a dupe
+        LogEntry.objects.create(when=datetime.datetime(2011,1,2,1,2,3), 
+                                     de_callsign='W2PE',
+                                     mode=Mode.objects.get(name='SSB'),
+                                     band=Band.objects.get(name='20m'),
+                                     contact_log=cl,
+                                     operator=op)
 
 class ViewTests(TestCase):
     def test_home_template_empty(self):
@@ -108,7 +146,7 @@ class ViewTests(TestCase):
         s = render_to_string('home.html', {'logs': [make_contactlog()]})
         self.assertFalse('You have not set up any contact logs.' in s)
         self.assertTrue('Flarp' in s)
-
+    
     def test_home_queryset(self):
         v = views.HomeView()
         self.assertEquals([], list(v.get_queryset()))
@@ -119,14 +157,26 @@ class ViewTests(TestCase):
         cl = make_contactlog()
         v = views.ContactLogView(kwargs={'pk': cl.pk})
         self.assertEquals(cl, v.get_object())
+        v.object = v.get_object()
 
-        self.fail('Test for list of log entries')
+        e = make_logentry(contact_log=cl)
+        v = views.ContactLogView(kwargs={'pk': cl.pk})
+        v.object = v.get_object()
+        ctx = v.get_context_data()
+        self.assertEquals(cl, ctx['contact_log'])
+        self.assertEquals([e], list(x for x in ctx['log_entries']))
 
     def test_contact_log_template_empty(self):
-        self.fail()
+        e = make_logentry()
+        s = render_to_string('contact_log.html', {'log_entries': []})
+        self.assertTrue('You have not logged any entries yet.' in s)
+        self.assertFalse(e.de_callsign in s)
 
     def test_contact_log_template_list(self):
-        self.fail()
+        e = make_logentry()
+        s = render_to_string('contact_log.html', {'log_entries': [e]})
+        self.assertFalse('You have not logged any entries yet.' in s)
+        self.assertTrue(e.de_callsign in s)
 
 class ViewSecurityTests(TestCase):
     def test_home(self):
@@ -139,7 +189,3 @@ class ViewSecurityTests(TestCase):
         c = Client()
         response = c.get(reverse('contact_log',kwargs={'pk': cl.pk}))
         self.assertEquals(200, response.status_code)
-
-class FormTests(TestCase):
-    def test_contact_form(self):
-        self.fail()

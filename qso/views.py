@@ -22,6 +22,7 @@ class ContactLogView(DetailView):
 
         context['log_entries'] = LogEntry.objects.filter(contact_log=self.get_object()
                                                          ).order_by('-when')
+
         
         return context
 

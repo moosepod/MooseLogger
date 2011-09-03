@@ -1,15 +1,25 @@
 from django.db import models
+from django.core.exceptions import ValidationError
 
 class Band(models.Model):
-    name = models.CharField(max_length=30)
+    name = models.CharField(max_length=30,unique=True)
     band_bottom = models.DecimalField(max_digits = 8, decimal_places=3)
     band_top = models.DecimalField(max_digits = 8, decimal_places=3)
+
+    def clean(self):
+        if self.band_bottom > self.band_top:
+            raise ValidationError('Band bottom must be lower than band top.')
+
+    def save(self, *args, **kwargs):
+        self.full_clean()
+        
+        super(Band,self).save(*args,**kwargs)
 
     def __unicode__(self):
         return self.name
 
 class Mode(models.Model):
-    name = models.CharField(max_length=30)
+    name = models.CharField(max_length=30,unique=True)
 
     def __unicode__(self):
         return self.name
@@ -49,7 +59,7 @@ class LogEntry(models.Model):
     rst_received = models.CharField(max_length=3,null=True,blank=True)
 
     def __unicode__(self):
-        return self.de_callsign
+        return u'%s, %s' % (self.when, self.de_callsign)
 
     class Meta:
         verbose_name_plural = "log entries"
