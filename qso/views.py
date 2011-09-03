@@ -21,6 +21,9 @@ class ContactLogView(View):
     form_class = ContactForm
 
     queryset = ContactLog.objects.all()
+    
+    def get_operator(self):
+        return Operator.objects.get(callsign='KC2ZUF')
 
     def get_context_data(self, **kwargs):
         context = {}
@@ -38,7 +41,8 @@ class ContactLogView(View):
         if request.POST:
             form = ContactForm(data=request.POST)
             if form.is_valid():
-                form.save()
+                form.save(contact_log=ctx['contact_log'],
+                          operator=self.get_operator())
         else:
             form = ContactForm()
 
