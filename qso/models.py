@@ -46,7 +46,7 @@ class ContactLog(models.Model):
     def __unicode__(self):
         return self.name
 
-class LogEntry(models.Model):
+class Contact(models.Model):
     contact_log = models.ForeignKey(ContactLog)
     operator = models.ForeignKey(Operator)
 
@@ -57,11 +57,10 @@ class LogEntry(models.Model):
     band = models.ForeignKey(Band)
     rst_sent = models.CharField(max_length=3,null=True,blank=True)
     rst_received = models.CharField(max_length=3,null=True,blank=True)
+    contest_exchange_sent = models.CharField(max_length=100, null=True,blank=True)
+    contest_exchange_received = models.CharField(max_length=100, null=True,blank=True)
 
     def __unicode__(self):
         return u'%s, %s' % (self.when, self.de_callsign)
-
-    class Meta:
-        verbose_name_plural = "log entries"
 
     

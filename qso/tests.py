@@ -14,8 +14,10 @@ from django.template.loader import render_to_string
 from django.core.exceptions import ValidationError
 from django.db import DatabaseError, IntegrityError
 
-from qso.models import Ruleset, ContactLog, Operator, Band, Mode, LogEntry
+from qso.models import Ruleset, ContactLog, Operator, Band, Mode, Contact
+from qso.forms import ContactForm
 from qso import views
+
 
 def make_operator():
     return Operator.objects.create(callsign='KC2ZUF')
@@ -98,6 +100,68 @@ class RulesetTests(TestCase):
         except DatabaseError:
             pass
 
+class LogFormTests(TestCase):
+    def test_validate_when_present(self):
+        f = ContactForm(data={'when': '2011-01-02 03:04'})
+        self.assertFalse(f.is_valid())
+        self.assertFalse(f.errors.get('when'))
+
+    def test_validate_when_missing(self):
+        f = ContactForm(data={'when': None})
+        self.assertFalse(f.is_valid())
+        self.assertFalse(f.errors.get('when'))
+
+    def test_validate_callsign(self):
+        f = ContactForm(data={'de': None})
+        self.assertFalse(f.is_valid())
+        self.assertEquals([u"Please provide the contact's callsign."], f.errors.get('de'))
+
+    def test_validate_frequency(self):
+        f = ContactForm(data={'frequency': None})
+        self.assertFalse(f.is_valid())
+        self.assertFalse(f.errors.get('frequency'))
+
+        f = ContactForm(data={'frequency': 'asdf'})
+        self.assertFalse(f.is_valid())
+        self.assertEquals([u"Please enter frequency in the format 7.123"], f.errors.get('frequency'))
+
+    def test_validate_mode(self):
+        f = ContactForm(data={'mode': None})
+        self.assertFalse(f.is_valid())
+        self.assertEquals([u"Please select a mode."], f.errors.get('mode'))
+
+    def test_validate_band(self):
+        f = ContactForm(data={'band': None})
+        self.assertFalse(f.is_valid())
+        self.assertEquals([u"Please select a band or enter a frequency."], f.errors.get('__all__'))
+        
+        f = ContactForm(data={'frequency': '7.1'})
+        self.assertFalse(f.is_valid())
+        self.assertFalse(f.errors.get('__all__'))
+        
+    def test_validate_rst_sent(self):
+        self.fail('Not required')
+        self.fail('Format [1-5][1-9N][1-9N]?')
+
+    def test_validate_rst_received(self):
+        self.fail('Not required')
+        self.fail('Format [1-5][1-9N][1-9N]?')
+
+    def test_contest_exchange_sent(self):
+        self.fail('Not required')
+
+    def test_contest_exchange_received(self):
+        self.fail('Required based on ruleset')
+
+    def test_save(self):
+        self.fail()
+        self.fail('test when set to now')
+    
+    def test_save_set_when(self):
+        self.fail()
+
+    def test_save_set_band(self):
+        self.fail()
 
 class ContactLogTests(TestCase):
     def test_unicode(self):
@@ -171,12 +235,14 @@ class ViewTests(TestCase):
         s = render_to_string('contact_log.html', {'log_entries': []})
         self.assertTrue('You have not logged any entries yet.' in s)
         self.assertFalse(e.de_callsign in s)
+        self.fail('Ensure form shows when empty')
 
     def test_contact_log_template_list(self):
         e = make_logentry()
         s = render_to_string('contact_log.html', {'log_entries': [e]})
         self.assertFalse('You have not logged any entries yet.' in s)
         self.assertTrue(e.de_callsign in s)
+        self.fail('Ensure form shows when not empty')
 
 class ViewSecurityTests(TestCase):
     def test_home(self):
