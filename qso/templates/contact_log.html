@@ -4,6 +4,19 @@
 
 {% block section_title %}{{ contact_log.name }}{% endblock %}
 
+{% block head_extra %}
+<script language="JavaScript">
+$(document).ready(function() {
+    $('#id_callsign').change(function() {
+        callsign =  $('#id_callsign').val();
+        if (callsign && callsign.length > 2) {
+            $('#qrz_area').load('/callsign/lookup/' + document.forms.contact_form.callsign.value + '/');
+        }
+    });
+});
+</script>
+{% endblock %}
+
 {% block page_content %}
 <div style="float: right">
 <div id="qrz_area" style="width: 600; height=400"></div>
@@ -14,8 +27,6 @@
 {{ form.as_p }}
 <input type="submit"/>
 </form>
-
-<a href="#" onClick="$('#qrz_area').load('/callsign/lookup/' + document.forms.contact_form.callsign.value + '/'); return true;">Lookup</a>
 
 {% if not contacts %}<p>You have not logged any entries yet.</p>{% else %}
 
