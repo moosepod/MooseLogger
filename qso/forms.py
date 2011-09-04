@@ -8,19 +8,26 @@ VALID_RST_RE = '^[1-5][1-9N][1-9N]?$'
 
 class ContactForm(forms.Form):
     when = forms.DateTimeField(required=False)
-    callsign = forms.CharField(error_messages={'required': 'Please provide the contact\'s callsign.'})
-    frequency = forms.CharField(required=False)
+    callsign = forms.CharField(max_length=10,
+                               widget=forms.TextInput(attrs={'size':'10'}),
+                               error_messages={'required': 'Please provide the contact\'s callsign.'})
+    frequency = forms.CharField(required=False,
+                               widget=forms.TextInput(attrs={'size':'10'}))
     mode = forms.ModelChoiceField(queryset=Mode.objects.all(),
                                   error_messages={'required': 'Please select a mode.'})
     band = forms.ModelChoiceField(queryset=Band.objects.all(),required=False)
     rst_sent = forms.RegexField(required=False,
                                 regex=VALID_RST_RE,
+                                widget=forms.TextInput(attrs={'size':'3'}),
                                 error_messages={'invalid': 'RST Sent should be in the format 59 or 599.'})
     rst_received = forms.RegexField(required=False,
                                 regex=VALID_RST_RE,
+                                widget=forms.TextInput(attrs={'size':'3'}),
                                 error_messages={'invalid': 'RST Received should be in the format 59 or 599.'})
-    contest_exchange_sent = forms.CharField(required=False)
-    contest_exchange_received = forms.CharField(required=False)
+    contest_exchange_sent = forms.CharField(required=False,
+                                widget=forms.TextInput(attrs={'size':'10'}))
+    contest_exchange_received = forms.CharField(required=False,
+                                widget=forms.TextInput(attrs={'size':'10'}))
 
     def clean_frequency(self):
         freq = self.cleaned_data.get('frequency')

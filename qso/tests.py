@@ -22,6 +22,9 @@ class MockForm(object):
     def as_p(self):
         return 'this is the form'
 
+    def when(self):
+        return 'this is the field when'
+
 def make_operator():
     return Operator.objects.create(callsign='KC2ZUF')
 
@@ -346,7 +349,7 @@ class ViewTests(TestCase):
         e = make_contact()
         s = render_to_string('contact_log.html', {'contacts': [],'form':MockForm()})
         self.assertTrue('You have not logged any entries yet.' in s)
-        self.assertTrue('this is the form' in s)
+        self.assertTrue('this is the field when' in s)
         self.assertFalse(e.callsign in s)
 
     def test_contact_log_template_list(self):
@@ -354,7 +357,7 @@ class ViewTests(TestCase):
         s = render_to_string('contact_log.html', {'contacts': [e],'form':MockForm()})
         self.assertFalse('You have not logged any entries yet.' in s)
         self.assertTrue(e.callsign in s)
-        self.assertTrue('this is the form' in s)
+        self.assertTrue('this is the field when' in s)
 
 class ViewSecurityTests(TestCase):
     def test_home(self):

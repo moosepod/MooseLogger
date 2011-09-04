@@ -48,11 +48,6 @@ tr.odd {
 
 <form action="." method="POST" name="contact_form">
 {% csrf_token %}
-{{ form.as_p }}
-<input type="submit"/>
-</form>
-
-{% if not contacts %}<p>You have not logged any entries yet.</p>{% else %}
 
 <table class="contact_table" cellspacing="0" cellpadding="0">
  <tr>
@@ -66,6 +61,20 @@ tr.odd {
   <th class="contact_table">RST Recv</th>
   <th class="contact_table">Contest Sent</th>
   <th class="contact_table">Contest Recv</th>
+  <th class="contact_table"></th>
+ </tr>
+{% if not contacts %}<tr><td colspan="10">You have not logged any entries yet.</td></tr>{% endif %}
+<tr class="{% cycle 'odd' 'even' %}">
+  <td class="contact_table" colspan="2">{{ form.when }}</td>
+  <td class="contact_table">{{ form.callsign }}</td>
+  <td class="contact_table">{{ form.mode }}</td>
+  <td class="contact_table">{{ form.frequency }} MHz</td>
+  <td class="contact_table">{{ form.band }}</td>
+  <td class="contact_table">{{ form.rst_sent }}</td>
+  <td class="contact_table">{{ form.rst_received }}</td>
+  <td class="contact_table">{{ form.contest_exchange_sent }}</td>
+  <td class="contact_table">{{ form.contest_exchange_received }}</td>
+  <td class="contact_table"><input type="submit" value="Add"/></td>
  </tr>
 {% for contact in contacts %}
  <tr class="{% cycle 'odd' 'even' %}">
@@ -79,8 +88,10 @@ tr.odd {
   <td class="contact_table">{{ contact.rst_received }}</td>
   <td class="contact_table">{{ contact.contest_exchange_sent }}</td>
   <td class="contact_table">{{ contact.contest_exchange_received }}</td>
+  <td class="contact_table"></td>
  </tr>
 {% endfor %}
 </table>
-{% endif %}
+
+</form>
 {% endblock %}
