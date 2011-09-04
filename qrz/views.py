@@ -1,5 +1,7 @@
 import urllib2
 
+from django.conf import settings
+
 from django.shortcuts import render_to_response
 from django.views.generic import View
 from django.shortcuts import get_object_or_404
@@ -36,8 +38,20 @@ class CallsignLookupView(View):
             qrz= QRZRecord()
             qrz.error = 'Missing callsign.'
         else:
-            qrz = QRZRecord(xml_data=self.get_qrz_data(callsign,'a025a6fd800361a6db7146e94728943c'))
+            if callsign == 'TESTING' and settings.DEBUG:
+                # Some kind of dependency injection would probably work better here, but this is 
+                # the expedient way to do things
+                data = 'asdfa'
+            else:
+                data = self.get_qrz_data(callsign,'a025a6fd800361a6db7146e94728943c')
             
+            if data:
+                qrz = QRZRecord(xml_data=data)
+            else:
+                qrz = QRZRecord()
+                qrz.is_authenticated = False
+                qrz.error = 'Unable to connect to QRZ.com'
+        
         context['qrz'] = qrz
 
         return context
