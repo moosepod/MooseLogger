@@ -26,20 +26,25 @@ class CallsignLookupView(View):
 
         return data
 
-    def dispatch(self, request, *args, **kwargs):
+    def setup_context(self, **kwargs):
         context = {'error': None,
                    'qrz': None}
         
         callsign = kwargs.get('callsign')
 
-        qrz = QRZRecord(xml_data=self.get_qrz_data(callsign,'a025a6fd800361a6db7146e94728943c'))
-        if qrz.error:
-            context['error'] = qrz.error
+        if not callsign:
+            qrz= QRZRecord()
+            qrz.error = 'Missing callsign.'
         else:
-            context['qrz'] = qrz
+            qrz = QRZRecord(xml_data=self.get_qrz_data(callsign,'a025a6fd800361a6db7146e94728943c'))
+            
+        context['qrz'] = qrz
 
+        return context
+
+    def dispatch(self, request, *args, **kwargs):
         return render_to_response('callsign_lookup.html',
-                                  context,
+                                  self.setup_context(**kwargs),
                                   RequestContext(request))
 
 

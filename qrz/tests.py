@@ -6,12 +6,16 @@ Replace this with more appropriate tests for your application.
 """
 
 from django.test import TestCase
+from django.template.loader import render_to_string
 
 from qrz.models import QRZRecord
+from qrz.views import CallsignLookupView
 
 class QRZViewTest(TestCase):
     def test_missing_callsign(self):
-        self.fail()
+        view = CallsignLookupView()
+        view.get_qrz_data = lambda x,y: None
+        self.assertEquals('Missing callsign.', view.setup_context()['qrz'].error)
 
     def test_url_failure(self):
         self.fail()
@@ -23,23 +27,72 @@ class QRZViewTest(TestCase):
         self.fail()
 
     def test_template_error(self):
-        self.fail()
+        qrz = QRZRecord()
+        qrz.error = 'Cannot foo.'
+        self.assertEquals( u'<b>Error:</b> Cannot foo.\n',render_to_string('callsign_lookup.html',{'qrz': qrz}))
 
     def test_template_noauth(self):
-        self.fail()
-
+        qrz = QRZRecord()
+        qrz.is_authenticated = False
+        qrz.error = None
+        self.assertEquals(u'\n<p>You need to log into QRZ.com to use this feature.</p>\n\n',render_to_string('callsign_lookup.html',{'qrz': qrz}))      
+  
     def test_template_with_us_record(self):
-        self.fail()
+        qrz = QRZRecord()
+        qrz.is_authenticated = True
+        qrz.error = None
+        qrz.country = 'United States'
+        qrz.fname = 'Foo'
+        qrz.name = 'Bar'
+        qrz.state = 'MI'
+        qrz.addr2 = 'Paris'
+        qrz.zip = '12345'
+        qrz.grid = 'AB01LD'
+        qrz.license_class = 'E'
+        qrz.will_qsl = True
+        qrz.will_eqsl = True
+
+        self.assertEquals(u'\n\n<p>Foo Bar<br/>\nParis, MI 12345<br/>\nExtra | AB01LD | Will QSL | Will eQSL\n</p>\n\n\n',render_to_string('callsign_lookup.html',{'qrz': qrz}))
 
     def test_template_with_dx_record(self):
-        self.fail()
+        qrz = QRZRecord()
+        qrz.is_authenticated = True
+        qrz.error = None
+        qrz.country = 'France'
+        qrz.fname = 'Foo'
+        qrz.name = 'Bar'
+        qrz.addr2 = 'Paris'
+        qrz.grid = 'AB01LD'
+        qrz.licence_class = None
+
+        self.assertEquals(u'\n\n<p>Foo Bar<br/>\n\nParis, France\n<br/>\nOther | AB01LD \n</p>\n\n\n',render_to_string('callsign_lookup.html',{'qrz': qrz}))
 
 class QRZRecordTest(TestCase):
     def test_is_dx(self):
-        self.fail()
+        qrz = QRZRecord()
+        qrz.country = 'United States'
+        self.assertFalse(qrz.is_dx())
+
+        qrz.country = 'united states'
+        self.assertFalse(qrz.is_dx())
     
+        qrz.country = 'Canada'
+        self.assertTrue(qrz.is_dx())
+
     def test_licence_class_expanded(self):
-        self.fail()
+        qrz = QRZRecord()
+        qrz.license_class = None
+        self.assertEquals('Other', qrz.license_class_expanded())
+        qrz.license_class = 'G'
+        self.assertEquals('General', qrz.license_class_expanded())
+        qrz.license_class = 'A'
+        self.assertEquals('Advanced', qrz.license_class_expanded())
+        qrz.license_class = 'N'
+        self.assertEquals('Novice', qrz.license_class_expanded())
+        qrz.license_class = 'T'
+        self.assertEquals('Technician', qrz.license_class_expanded())
+        qrz.license_class = 'E'
+        self.assertEquals('Extra', qrz.license_class_expanded())
 
     def test_parse_error(self):
         qrz = QRZRecord(xml_data='asdfas')
@@ -70,3 +123,11 @@ class QRZRecordTest(TestCase):
         self.assertEquals('C',qrz.license_class)
         self.assertEquals('1',qrz.will_qsl)
         self.assertEquals('1',qrz.will_eqsl)
+
+class ViewSecurityTests(TestCase):
+    def test_callsign_lookup(self):
+        self.fail()
+        c = Client()
+        response = c.get(reverse('home'))
+        self.assertEquals(200, response.status_code)
+

@@ -1,4 +1,4 @@
-{% if error %}<b>Error:</b> {{ error }}{% else %}
+{% if qrz.error %}<b>Error:</b> {{ qrz.error }}{% else %}
 {% if not qrz.is_authenticated %}<p>You need to log into QRZ.com to use this feature.</p>{% else %}
 <p>{% if qrz.fname %}{{ qrz.fname }} {% endif %}{{ qrz.name }}<br/>
 {% if not qrz.is_dx %}{{ qrz.addr2 }}, {{ qrz.state }} {{ qrz.zip }}{% else %}
