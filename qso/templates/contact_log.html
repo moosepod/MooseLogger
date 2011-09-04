@@ -15,6 +15,30 @@ $(document).ready(function() {
     });
 });
 </script>
+<style type="text/css">
+table.contact_table {
+    border-left: 1px solid;
+    border-top: 1px solid;
+}
+
+th.contact_table  {
+    border-bottom: 1px solid;
+    border-right: 1px solid;
+    padding: 5px;
+}
+
+td.contact_table  {
+    border-bottom: 1px solid;
+    border-right: 1px solid;
+    padding: 5px;
+}
+
+tr.odd {
+    background: #CCCCCC;
+}
+
+</style>
+
 {% endblock %}
 
 {% block page_content %}
@@ -30,27 +54,31 @@ $(document).ready(function() {
 
 {% if not contacts %}<p>You have not logged any entries yet.</p>{% else %}
 
-<table>
+<table class="contact_table" cellspacing="0" cellpadding="0">
  <tr>
-  <th>Date</th>
-  <th>Time</th>
-  <th>DE</th>
-  <th>Mode</th>
-  <th>Frequency</th>
-  <th>Band</th>
-  <th>RST Sent</th>
-  <th>RST Recv</th>
+  <th class="contact_table">Date</th>
+  <th class="contact_table">Time</th>
+  <th class="contact_table">Callsign</th>
+  <th class="contact_table">Mode</th>
+  <th class="contact_table">Frequency</th>
+  <th class="contact_table">Band</th>
+  <th class="contact_table">RST Sent</th>
+  <th class="contact_table">RST Recv</th>
+  <th class="contact_table">Contest Sent</th>
+  <th class="contact_table">Contest Recv</th>
  </tr>
 {% for contact in contacts %}
- <tr>
-  <td>{{ contact.when|date:"m/d/Y" }}</td>
-  <td>{{ contact.when|time:"H:i" }}Z</td>
-  <td>{{ contact.callsign }}</td>
-  <td>{{ contact.mode }}</td>
-  <td>{{ contact.frequency }} MHz</td>
-  <td>{{ contact.band }}</td>
-  <td>{{ contact.rst_sent }}</td>
-  <td>{{ contact.rst_received }}</td>
+ <tr class="{% cycle 'odd' 'even' %}">
+  <td class="contact_table">{{ contact.when|date:"m/d/Y" }}</td>
+  <td class="contact_table">{{ contact.when|time:"H:i" }}Z</td>
+  <td class="contact_table">{{ contact.callsign|upper }}</td>
+  <td class="contact_table">{{ contact.mode }}</td>
+  <td class="contact_table">{{ contact.frequency }} MHz</td>
+  <td class="contact_table">{{ contact.band }}</td>
+  <td class="contact_table">{{ contact.rst_sent }}</td>
+  <td class="contact_table">{{ contact.rst_received }}</td>
+  <td class="contact_table">{{ contact.contest_exchange_sent }}</td>
+  <td class="contact_table">{{ contact.contest_exchange_received }}</td>
  </tr>
 {% endfor %}
 </table>
