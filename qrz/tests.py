@@ -37,6 +37,9 @@ class QRZViewTest(TestCase):
 class QRZRecordTest(TestCase):
     def test_is_dx(self):
         self.fail()
+    
+    def test_licence_class_expanded(self):
+        self.fail()
 
     def test_parse_error(self):
         qrz = QRZRecord(xml_data='asdfas')

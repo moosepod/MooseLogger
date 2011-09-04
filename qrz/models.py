@@ -7,6 +7,13 @@ import elementtree.ElementTree as ET
 ### See http://www.qrz.com/XML/current_spec.html for spec
 
 class QRZRecord(object):
+    LICENSE_CLASSES = {'G': 'General',
+                       'T': 'Technician',
+                       'C': 'Club',
+                       'E': 'Extra',
+                       'N': 'Novice',
+                       'A': 'Advanced',
+                       }
     def __init__(self, xml_data=None):
         self.error = None
         self.call = None           # call
@@ -28,6 +35,12 @@ class QRZRecord(object):
 
         if xml_data:    
             self.load_from_xml(xml_data)
+    
+    def license_class_expanded(self):
+        if not self.license_class:
+            return 'Other'
+
+        return QRZRecord.LICENSE_CLASSES.get(self.license_class,self.license_class)
 
     def is_dx(self):
         if not self.country: 
