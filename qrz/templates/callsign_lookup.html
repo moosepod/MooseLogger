@@ -1,10 +1,11 @@
 {% if qrz.error %}<b>Error:</b> {{ qrz.error }}{% else %}
 {% if not qrz.is_authenticated %}<p>You need to log into QRZ.com to use this feature.</p>{% else %}
 <p>{% if qrz.fname %}{{ qrz.fname }} {% endif %}{{ qrz.name }}<br/>
-{% if not qrz.is_dx %}{{ qrz.addr2 }}, {{ qrz.state }} {{ qrz.zip }}{% else %}
-{{ qrz.addr2 }}, {{ qrz.country }}
+{% if not qrz.is_dx %}{% if qrz.addr2 %}{{ qrz.addr2 }}, {% endif %}{{ qrz.state|default:"" }} {{ qrz.zip|default:"" }}{% else %}
+{% if qrz.addr2 %}{{ qrz.addr2 }}, {% endif %}{{ qrz.country }}
 {% endif %}<br/>
-{{ qrz.license_class_expanded }} | {{ qrz.grid|upper }} {% if qrz.will_qsl %}| Will QSL {% endif %}{% if qrz.will_eqsl %}| Will eQSL{% endif %}
+{{ qrz.license_class_expanded }} | {{ qrz.grid|upper }} {% if qrz.will_qsl %}| Will QSL {% endif %}{% if qrz.will_eqsl %}| Will eQSL{% endif %}<br/>
+<a href="http://qrz.com/db/?callsign={{ qrz.call }}" target="_qrz">View on QRZ.com</a>
 </p>
 {% endif %}
 {% endif %}
