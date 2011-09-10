@@ -284,6 +284,13 @@ class LogFormTests(TestCase):
         self.assertFalse(f.is_valid())
         self.assertEquals({'__all__': [u'Please select a band or enter a frequency.']}, f.errors)
 
+    def test_get_fieldless_errors(self):
+        f = ContactForm()  
+        self.assertFalse(f.get_fieldless_errors())
+
+        f = ContactForm({'asd':'asdfsafd'})
+        self.assertEquals([u'Please select a band or enter a frequency.'], f.get_fieldless_errors())
+
 class ContactLogTests(TestCase):
     def test_unicode(self):
         o = Operator(callsign='KC2ZUF')
@@ -370,6 +377,8 @@ class ViewTests(TestCase):
         f.errors = {'mode': 'A mode error'}
         s = render_to_string('contact_log.html', {'contacts': [e],'form':f})
         self.assertTrue('A mode error' in s)
+
+
 
 class ViewSecurityTests(TestCase):
     def test_home(self):

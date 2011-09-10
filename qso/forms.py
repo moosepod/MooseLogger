@@ -29,6 +29,9 @@ class ContactForm(forms.Form):
     contest_exchange_received = forms.CharField(required=False,
                                 widget=forms.TextInput(attrs={'size':'10'}))
 
+    def get_fieldless_errors(self):
+        return self.errors.get('__all__')
+
     def clean_frequency(self):
         freq = self.cleaned_data.get('frequency')
 

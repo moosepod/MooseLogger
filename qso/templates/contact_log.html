@@ -68,7 +68,7 @@ ul.errorlist {
  </tr>
 {% if not contacts %}<tr><td colspan="10">You have not logged any entries yet.</td></tr>{% endif %}
 <tr class="{% cycle 'odd' 'even' %}">
-  <td class="contact_table" colspan="2">{{ form.when }}{% if form.errors %}<br/> {{ form.errors.when }} {% endif %}</td>
+  <td class="contact_table" colspan="2">{{ form.when }}{% if form.errors %}<br/> {{ form.errors.when }} {{ form.get_fieldless_errors }}{% endif %}</td>
   <td class="contact_table">{{ form.callsign }}{% if form.errors %}<br/> {{ form.errors.callsign }} {% endif %}
 <br/>
 <div id="qrz_area"></div>
