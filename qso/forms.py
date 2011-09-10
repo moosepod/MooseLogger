@@ -34,7 +34,8 @@ class ContactForm(forms.Form):
 
         if freq:
             try:
-                float(freq)
+                if float(freq) < 0:
+                    raise forms.ValidationError('Frequency must be positive.')
             except ValueError:
                 raise forms.ValidationError('Please enter frequency in the format 7.123')
 

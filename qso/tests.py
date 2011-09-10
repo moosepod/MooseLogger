@@ -14,6 +14,7 @@ from django.template.loader import render_to_string
 from django.core.exceptions import ValidationError
 from django.db import DatabaseError, IntegrityError
 
+
 from qso.models import Ruleset, ContactLog, Operator, Band, Mode, Contact
 from qso.forms import ContactForm
 from qso import views
@@ -149,6 +150,10 @@ class LogFormTests(TestCase):
         f = ContactForm(data={'frequency': 'asdf'})
         self.assertFalse(f.is_valid())
         self.assertEquals([u"Please enter frequency in the format 7.123"], f.errors.get('frequency'))
+
+        f = ContactForm(data={'frequency': '-1.0'})
+        self.assertFalse(f.is_valid())
+        self.assertEquals([u"Frequency must be positive."], f.errors.get('frequency'))
 
     def test_validate_mode(self):
         f = ContactForm(data={'mode': None})
@@ -358,6 +363,9 @@ class ViewTests(TestCase):
         self.assertFalse('You have not logged any entries yet.' in s)
         self.assertTrue(e.callsign in s)
         self.assertTrue('this is the field when' in s)
+
+    def test_contact_log_template_form(self):
+        self.fail()
 
 class ViewSecurityTests(TestCase):
     def test_home(self):
