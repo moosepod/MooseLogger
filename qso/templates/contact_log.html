@@ -31,25 +31,28 @@ td.contact_table  {
     border-bottom: 1px solid;
     border-right: 1px solid;
     padding: 5px;
+    vertical-align: top;
 }
 
 tr.odd {
     background: #CCCCCC;
 }
 
+ul.errorlist {
+    list-style-type: none;
+    padding-left: 0px;
+    font-size: 0.75em;
+}
 </style>
 
 {% endblock %}
 
 {% block page_content %}
-<div style="float: right">
-<div id="qrz_area" style="width: 600; height=400"></div>
-</div>
 
 <form action="." method="POST" name="contact_form">
 {% csrf_token %}
 
-<table class="contact_table" cellspacing="0" cellpadding="0">
+<table class="contact_table" cellspacing="0" cellpadding="0" width="100%">
  <tr>
   <th class="contact_table">Date</th>
   <th class="contact_table">Time</th>
@@ -65,15 +68,18 @@ tr.odd {
  </tr>
 {% if not contacts %}<tr><td colspan="10">You have not logged any entries yet.</td></tr>{% endif %}
 <tr class="{% cycle 'odd' 'even' %}">
-  <td class="contact_table" colspan="2">{{ form.when }}</td>
-  <td class="contact_table">{{ form.callsign }}</td>
-  <td class="contact_table">{{ form.mode }}</td>
-  <td class="contact_table">{{ form.frequency }} MHz</td>
-  <td class="contact_table">{{ form.band }}</td>
-  <td class="contact_table">{{ form.rst_sent }}</td>
-  <td class="contact_table">{{ form.rst_received }}</td>
-  <td class="contact_table">{{ form.contest_exchange_sent }}</td>
-  <td class="contact_table">{{ form.contest_exchange_received }}</td>
+  <td class="contact_table" colspan="2">{{ form.when }}{% if form.errors %}<br/> {{ form.errors.when }} {% endif %}</td>
+  <td class="contact_table">{{ form.callsign }}{% if form.errors %}<br/> {{ form.errors.callsign }} {% endif %}
+<br/>
+<div id="qrz_area"></div>
+</td>
+  <td class="contact_table">{{ form.mode }}{% if form.errors %}<br/> {{ form.errors.mode }} {% endif %}</td>
+  <td class="contact_table">{{ form.frequency }} MHz{% if form.errors %}<br/> {{ form.errors.frequency }} {% endif %}</td>
+  <td class="contact_table">{{ form.band }}{% if form.errors %}<br/> {{ form.errors.band }} {% endif %}</td>
+  <td class="contact_table">{{ form.rst_sent }}{% if form.errors %}<br/> {{ form.errors.rst_sent }} {% endif %}</td>
+  <td class="contact_table">{{ form.rst_received }}{% if form.errors %}<br/> {{ form.errors.rst_received }} {% endif %}</td>
+  <td class="contact_table">{{ form.contest_exchange_sent }}{% if form.errors %}<br/> {{ form.errors.contest_exchange_sent }} {% endif %}</td>
+  <td class="contact_table">{{ form.contest_exchange_received }}{% if form.errors %}<br/> {{ form.errors.contest_exchange_received }} {% endif %}</td>
   <td class="contact_table"><input type="submit" value="Add"/></td>
  </tr>
 {% for contact in contacts %}

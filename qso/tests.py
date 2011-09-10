@@ -365,7 +365,11 @@ class ViewTests(TestCase):
         self.assertTrue('this is the field when' in s)
 
     def test_contact_log_template_form(self):
-        self.fail()
+        e = make_contact()
+        f = MockForm()
+        f.errors = {'mode': 'A mode error'}
+        s = render_to_string('contact_log.html', {'contacts': [e],'form':f})
+        self.assertTrue('A mode error' in s)
 
 class ViewSecurityTests(TestCase):
     def test_home(self):

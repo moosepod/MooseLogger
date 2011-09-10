@@ -43,7 +43,7 @@ class CallsignLookupView(View):
                 # the expedient way to do things
                 data = 'asdfa'
             else:
-                data = self.get_qrz_data(callsign,'a025a6fd800361a6db7146e94728943c')
+                data = self.get_qrz_data(callsign,'31716fae2e3bc008f1d1fa65e974a142')
             
             if data:
                 qrz = QRZRecord(xml_data=data)
