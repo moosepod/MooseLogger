@@ -70,7 +70,7 @@ class QRZViewTest(TestCase):
         qrz.will_qsl = True
         qrz.will_eqsl = True
 
-        self.assertEquals(u'\n\n<p>Foo Bar<br/>\nParis, MI 12345<br/>\nExtra | AB01LD | Will QSL | Will eQSL\n</p>\n\n\n',render_to_string('callsign_lookup.html',{'qrz': qrz}))
+        self.assertEquals( u'\n\n<p>Foo Bar<br/>\nParis, MI 12345<br/>\nExtra | AB01LD | Will QSL | Will eQSL<br/>\n<a href="http://qrz.com/db/?callsign=None" target="_qrz">View on QRZ.com</a>\n</p>\n\n\n',render_to_string('callsign_lookup.html',{'qrz': qrz}))
 
     def test_template_with_dx_record(self):
         qrz = QRZRecord()
@@ -83,7 +83,7 @@ class QRZViewTest(TestCase):
         qrz.grid = 'AB01LD'
         qrz.licence_class = None
 
-        self.assertEquals(u'\n\n<p>Foo Bar<br/>\n\nParis, France\n<br/>\nOther | AB01LD \n</p>\n\n\n',render_to_string('callsign_lookup.html',{'qrz': qrz}))
+        self.assertEquals( u'\n\n<p>Foo Bar<br/>\n\nParis, France\n<br/>\nOther | AB01LD <br/>\n<a href="http://qrz.com/db/?callsign=None" target="_qrz">View on QRZ.com</a>\n</p>\n\n\n',render_to_string('callsign_lookup.html',{'qrz': qrz}))
 
 class QRZRecordTest(TestCase):
     def test_is_dx(self):

@@ -15,7 +15,7 @@ from django.core.exceptions import ValidationError
 from django.db import DatabaseError, IntegrityError
 
 
-from qso.models import Ruleset, ContactLog, Operator, Band, Mode, Contact
+from qso.models import Ruleset, ContactLog, Operator, Band, Mode, Contact, QRZCredentials
 from qso.forms import ContactForm
 from qso import views
 
@@ -111,6 +111,16 @@ class OperatorTests(TestCase):
         Operator.objects.create(callsign='KC2ZUF')
 
         Operator.objects.create(callsign='AA7AAA/AE')
+
+class QRZCredentialsTests(TestCase):
+    def test_unicode(self):
+	qrz = QRZCredentials(username='KA9AAA')
+	self.assertEquals('KA9AAA',unicode(qrz))
+
+    def test_save(self):
+	c = Operator.objects.create(callsign='KC2ZUF')
+        qrz = QRZCredentials(username='KA9AAA',operator=c,password='test')
+	qrz.save()
 
 class RulesetTests(TestCase):
     def test_unicode(self):

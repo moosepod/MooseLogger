@@ -41,6 +41,15 @@ class Operator(models.Model):
     def __unicode__(self):
         return self.callsign
 
+class QRZCredentials(models.Model):
+    operator = models.ForeignKey(Operator)
+    username = models.CharField(max_length=40)
+    password = models.CharField(max_length=40,help_text='NOTE: stored in plaintext!')
+
+    def __unicode__(self):
+	return self.username
+
+
 class Ruleset(models.Model):
     name = models.CharField(unique=True, max_length=255)
     created_on = models.DateTimeField(auto_now_add=True)

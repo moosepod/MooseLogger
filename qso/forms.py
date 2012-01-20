@@ -2,7 +2,7 @@ import datetime
 
 from django import forms
 
-from qso.models import Contact,Mode,Band
+from qso.models import Contact,Mode,Band,QRZCredentials
 
 VALID_RST_RE = '^[1-5][1-9N][1-9N]?$'
 
@@ -88,3 +88,8 @@ class ContactForm(forms.Form):
 
         return contact    
 
+class QRZCredentialsAdminForm(forms.ModelForm):
+	password = forms.CharField( widget=forms.PasswordInput )
+
+	class Meta:
+		model = QRZCredentials
