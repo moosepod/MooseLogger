@@ -5,7 +5,7 @@ from django.template import RequestContext
 
 from qso.models import Ruleset, ContactLog, Operator, Contact,QRZCredentials
 
-from qso.forms import ContactForm
+from qso.forms import ContactForm,ContestForm
 
 class HomeView(ListView):
     context_object_name = "logs"
@@ -45,18 +45,21 @@ class ContactLogView(View):
     def dispatch(self, request, *args, **kwargs):
         ctx = self.get_context_data(**kwargs)
         form = None
+        form_cls = ContactForm
+        if ctx['contact_log'].ruleset.is_contest:
+	     form_cls = ContestForm
 
 	if not request.session.get('qrz_info'):
 	    request.session['qrz_info'] = self.get_qrz_info()
 
         if request.POST:
-            form = ContactForm(data=request.POST)
+            form = form_cls(data=request.POST)
 
             if form.is_valid():
                 form.save(contact_log=ctx['contact_log'],
                           operator=self.get_operator())
         else:
-            form = ContactForm()
+            form = form_cls()
 
         ctx['form'] = form
 

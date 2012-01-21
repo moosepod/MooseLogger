@@ -24,10 +24,6 @@ class ContactForm(forms.Form):
                                 regex=VALID_RST_RE,
                                 widget=forms.TextInput(attrs={'size':'3'}),
                                 error_messages={'invalid': 'RST Received should be in the format 59 or 599.'})
-    contest_exchange_sent = forms.CharField(required=False,
-                                widget=forms.TextInput(attrs={'size':'10'}))
-    contest_exchange_received = forms.CharField(required=False,
-                                widget=forms.TextInput(attrs={'size':'10'}))
 
     def get_fieldless_errors(self):
         return self.errors.get('__all__')
@@ -87,6 +83,13 @@ class ContactForm(forms.Form):
         contact.save()
 
         return contact    
+
+class ContestForm(ContactForm):
+    contest_exchange_sent = forms.CharField(required=False,
+                                widget=forms.TextInput(attrs={'size':'10'}))
+    contest_exchange_received = forms.CharField(required=False,
+                                widget=forms.TextInput(attrs={'size':'10'}))
+
 
 class QRZCredentialsAdminForm(forms.ModelForm):
 	password = forms.CharField( widget=forms.PasswordInput )

@@ -62,8 +62,8 @@ ul.errorlist {
   <th class="contact_table">Band</th>
   <th class="contact_table">RST Sent</th>
   <th class="contact_table">RST Recv</th>
-  <th class="contact_table">Contest Sent</th>
-  <th class="contact_table">Contest Recv</th>
+{% if contact_log.ruleset.is_contest %}<th class="contact_table">Contest Sent</th>
+  <th class="contact_table">Contest Recv</th>{% endif %}
   <th class="contact_table"></th>
  </tr>
 {% if not contacts %}<tr><td colspan="10">You have not logged any entries yet.</td></tr>{% endif %}
@@ -78,8 +78,8 @@ ul.errorlist {
   <td class="contact_table">{{ form.band }}{% if form.errors %}<br/> {{ form.errors.band }} {% endif %}</td>
   <td class="contact_table">{{ form.rst_sent }}{% if form.errors %}<br/> {{ form.errors.rst_sent }} {% endif %}</td>
   <td class="contact_table">{{ form.rst_received }}{% if form.errors %}<br/> {{ form.errors.rst_received }} {% endif %}</td>
-  <td class="contact_table">{{ form.contest_exchange_sent }}{% if form.errors %}<br/> {{ form.errors.contest_exchange_sent }} {% endif %}</td>
-  <td class="contact_table">{{ form.contest_exchange_received }}{% if form.errors %}<br/> {{ form.errors.contest_exchange_received }} {% endif %}</td>
+{% if contact_log.ruleset.is_contest %}<td class="contact_table">{{ form.contest_exchange_sent }}{% if form.errors %}<br/> {{ form.errors.contest_exchange_sent }} {% endif %}</td>
+  <td class="contact_table">{{ form.contest_exchange_received }}{% if form.errors %}<br/> {{ form.errors.contest_exchange_received }} {% endif %}</td>{% endif %}
   <td class="contact_table"><input type="submit" value="Add"/></td>
  </tr>
 {% for contact in contacts %}
@@ -92,8 +92,8 @@ ul.errorlist {
   <td class="contact_table">{{ contact.band }}</td>
   <td class="contact_table">{{ contact.rst_sent }}</td>
   <td class="contact_table">{{ contact.rst_received }}</td>
-  <td class="contact_table">{{ contact.contest_exchange_sent }}</td>
-  <td class="contact_table">{{ contact.contest_exchange_received }}</td>
+{% if contact_log.ruleset.is_contest %}  <td class="contact_table">{{ contact.contest_exchange_sent }}</td>
+  <td class="contact_table">{{ contact.contest_exchange_received }}</td>{% endif %}
   <td class="contact_table"></td>
  </tr>
 {% endfor %}

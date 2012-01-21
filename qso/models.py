@@ -54,6 +54,8 @@ class Ruleset(models.Model):
     name = models.CharField(unique=True, max_length=255)
     created_on = models.DateTimeField(auto_now_add=True)
 
+    is_contest = models.BooleanField(default=False)
+
     def __unicode__(self):
         return self.name
 
