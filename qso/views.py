@@ -3,7 +3,7 @@ from django.views.generic import ListView, DetailView, View
 from django.shortcuts import get_object_or_404
 from django.template import RequestContext
 
-from qso.models import Ruleset, ContactLog, Operator, Contact
+from qso.models import Ruleset, ContactLog, Operator, Contact,QRZCredentials
 
 from qso.forms import ContactForm
 
@@ -23,6 +23,15 @@ class ContactLogView(View):
     
     def get_operator(self):
         return Operator.objects.get(callsign='KC2ZUF')  
+   
+    def get_qrz_info(self):
+	try:
+	    info = QRZCredentials.objects.filter(operator=self.get_operator)[0]
+	    return (info.username, info.password)
+	except IndexError:
+	    pass
+  
+        return None
 
     def get_context_data(self, **kwargs):
         context = {}
@@ -37,8 +46,12 @@ class ContactLogView(View):
         ctx = self.get_context_data(**kwargs)
         form = None
 
+	if not request.session.get('qrz_info'):
+	    request.session['qrz_info'] = self.get_qrz_info()
+
         if request.POST:
             form = ContactForm(data=request.POST)
+
             if form.is_valid():
                 form.save(contact_log=ctx['contact_log'],
                           operator=self.get_operator())
