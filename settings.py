@@ -129,6 +129,7 @@ INSTALLED_APPS = (
      'django.contrib.admindocs',
      'mooselogger.qrz',
      'mooselogger.qso',
+     'mooselogger.adif',
 )
 
 # A sample logging configuration. The only tangible logging
