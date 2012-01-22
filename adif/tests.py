@@ -41,5 +41,14 @@ class ADIFParserTests(TestCase):
 		p = ADIFParser('<abc:3>ab')
 		self.assertRaises(ADIFException, p.next_record)
 
+	def test_tag(self):
+		p = ADIFParser('<abc:2>cde')
+		t = p._next_tag()
+		self.assertEquals('abc',t.tag)
+		self.assertEquals('cd',t.content)
 
-
+	def test_tag_case_sensitivty(self):
+		p = ADIFParser('<ABc:2>CDe')
+		t = p._next_tag()
+		self.assertEquals('abc',t.tag)
+		self.assertEquals('CD',t.content)

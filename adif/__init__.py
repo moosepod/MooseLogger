@@ -39,45 +39,52 @@ class ADIFParser(object):
 
 	""" Return the next ADIF record, or None if there are no more valid record """
 	def next_record(self):
+		while self._next_tag():
+			pass
+
+	def _next_tag(self):
 		while self._handle_next_char():
-			pass				
+			pass		
+		return self.current_tag
 
 	def _handle_next_char(self):
-		if self.index >= self.length:
+		index = self.index
+		self.index += 1
+
+		if index >= self.length:
 			if self.state != ADIFParser.WAITING_FOR_TAG_STATE:
-				raise ADIFException('Premature end of record at index %d' % self.index)
+				raise ADIFException('Premature end of record at index %d' % index)
 			return False
 
-		c = self.adif_str[self.index]
+		c = self.adif_str[index]
 		if self.state == ADIFParser.WAITING_FOR_TAG_STATE:
 			if c == '<':
 				self.state = ADIFParser.TAG_NAME_STATE
 				self.current_tag = ADIFTag()
 		elif self.state == ADIFParser.TAG_NAME_STATE:
 			if c == '<':
-				raise ADIFException('Unexpected < in middle of tag at index %d' % self.index)		
+				raise ADIFException('Unexpected < in middle of tag at index %d' % index)		
 			elif c == '>':
-				raise ADIFException('Tag with no content length at index %d' % self.index)
+				raise ADIFException('Tag with no content length at index %d' % index)
 			elif c == ':':
 				self.state = ADIFParser.CONTENT_LENGTH_STATE
 			else:
-				self.current_tag.tag += c
+				self.current_tag.tag += c.lower()
 		elif self.state == ADIFParser.CONTENT_LENGTH_STATE:
 			if c == '>':
 				if len(self.current_tag.content_length_str) == 0:
-					raise ADIFException('Tag without content length at index %d' %  self.index)
+					raise ADIFException('Tag without content length at index %d' %  index)
 				self.state = ADIFParser.CONTENT_STATE
-				self.content_end_index = self.index+self.current_tag.content_length()
+				self.content_end_index = index+self.current_tag.content_length() + 1
 			elif c not in ('0','1','2','3','4','5','6','7','8','9'):
-				raise ADIFException('Non-numeric char in length in tag at index %d' % self.index)
+				raise ADIFException('Non-numeric char in length in tag at index %d' % index)
 			else:
 				self.current_tag.content_length_str += c
 		elif self.state == ADIFParser.CONTENT_STATE:
-			if self.index < self.content_end_index:
+			if index < self.content_end_index:
 				self.current_tag.content+= c
 			else:
 				self.state = ADIFParser.WAITING_FOR_TAG_STATE
+				return False
 		
-		self.index += 1
-	
 		return True
