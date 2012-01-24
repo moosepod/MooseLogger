@@ -52,3 +52,28 @@ class ADIFParserTests(TestCase):
 		t = p._next_tag()
 		self.assertEquals('abc',t.tag)
 		self.assertEquals('CD',t.content)
+
+	def test_tag_parse(self):
+		p = ADIFParser('<call:4>W2PE <class:2>2A')
+		t = p._next_tag()
+		self.assertEquals('call', t.tag)
+		self.assertEquals('W2PE', t.content)
+		t = p._next_tag()
+		self.assertEquals('class',t.tag)
+		self.assertEquals('2A', t.content)
+	
+	def test_eor(self):
+		p = ADIFParser('<eor> abc')
+		t = p._next_tag()
+		self.assertEquals('eor', t.tag)
+	
+	def test_eoh(self):
+		p = ADIFParser('<eoh> efg')
+		t = p._next_tag()
+		self.assertEquals('eoh', t.tag)
+
+	def test_record_parse(self):
+		p = ADIFParser('<call:4>W2PE <class:2>2A<eor>')
+		r = p.next_record()
+		self.assertEquals('W2PE',r.call)
+		self.assertEquals('2A',r.class_r)

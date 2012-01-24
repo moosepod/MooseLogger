@@ -6,7 +6,19 @@
 #
 
 class ADIFRecord(object):
-	pass
+	ADIF_MAPPING = {'call' : 'call',
+			'class': 'class_r'}
+ 
+	def __init__(self):
+		super(ADIFRecord,self).__init__()
+		self.call = None
+		self.class_r = None
+
+	def set_attribute(self,name,value):
+		attr = ADIFRecord.ADIF_MAPPING.get(name)
+		if not attr:
+			raise ADIFException('Unknown attribute %s' % name)
+		setattr(self,attr,value)		
 
 class ADIFTag(object):
 	def __init__(self):
@@ -32,17 +44,25 @@ class ADIFParser(object):
 			adif_str = ''
 		self.adif_str = adif_str
 		self.index = 0
-		self.length = len(adif_str)
+		self.length = len(adif_str) 
 		self.state = ADIFParser.WAITING_FOR_TAG_STATE
 		self.current_tag = None
 		self.content_end_index = 0
 
 	""" Return the next ADIF record, or None if there are no more valid record """
 	def next_record(self):
-		while self._next_tag():
-			pass
+		record = ADIFRecord()
+		while 1:
+			tag = self._next_tag()
+			if not tag:
+				return None
+			if tag.tag == 'eor':
+				return record
+			else:
+				record.set_attribute(tag.tag,tag.content)
 
 	def _next_tag(self):
+		self.state = ADIFParser.WAITING_FOR_TAG_STATE
 		while self._handle_next_char():
 			pass		
 		return self.current_tag
@@ -50,7 +70,6 @@ class ADIFParser(object):
 	def _handle_next_char(self):
 		index = self.index
 		self.index += 1
-
 		if index >= self.length:
 			if self.state != ADIFParser.WAITING_FOR_TAG_STATE:
 				raise ADIFException('Premature end of record at index %d' % index)
@@ -65,6 +84,8 @@ class ADIFParser(object):
 			if c == '<':
 				raise ADIFException('Unexpected < in middle of tag at index %d' % index)		
 			elif c == '>':
+				if self.current_tag.tag in ('eor','eoh'):	
+					return False
 				raise ADIFException('Tag with no content length at index %d' % index)
 			elif c == ':':
 				self.state = ADIFParser.CONTENT_LENGTH_STATE
@@ -83,7 +104,8 @@ class ADIFParser(object):
 		elif self.state == ADIFParser.CONTENT_STATE:
 			if index < self.content_end_index:
 				self.current_tag.content+= c
-			else:
+			
+			if index + 1 >= self.content_end_index:
 				self.state = ADIFParser.WAITING_FOR_TAG_STATE
 				return False
 		
