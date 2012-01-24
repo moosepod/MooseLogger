@@ -5,6 +5,19 @@
 # getting a basic parser in place
 #
 
+# ADIF_VER
+# BAND
+# CALL
+# COMMENT    (need to add)
+# FREQ
+# GRIDSQUARE (need to add)
+# MODE
+# NAME       (need to add)
+# TX_PWR     (need to add)
+# TIME_ON    (need to add)
+# TIME_OFF   (need to add)
+# QSO_DATE
+
 class ADIFRecord(object):
 	ADIF_MAPPING = {'call' : 'call',
 			'class': 'class_r'}

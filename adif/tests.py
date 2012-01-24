@@ -8,6 +8,14 @@ Replace this with more appropriate tests for your application.
 from django.test import TestCase
 from adif import ADIFParser, ADIFRecord, ADIFException
 
+class ADIFExporterTests(TestCase):
+	def test_none(self):
+		self.fail('test exporter')
+
+class ADIFTagTests(TestCase):
+	def test_test(self):
+		self.fail('test tag types')
+
 class ADIFParserTests(TestCase):
 	def test_none(self):
 		p = ADIFParser(None)
@@ -77,3 +85,6 @@ class ADIFParserTests(TestCase):
 		r = p.next_record()
 		self.assertEquals('W2PE',r.call)
 		self.assertEquals('2A',r.class_r)
+
+	def test_data_type(self):
+		self.fail('need to test data type')
